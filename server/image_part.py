@@ -27,5 +27,4 @@ def img_to_base64(file_path: str):
     base64_encoded = base64.b64encode(img_bytes)
     
     utf8_decoded = base64_encoded.decode('utf-8')
-    img_url = f"{utf8_decoded}"
-    return img_url
+    return utf8_decoded
