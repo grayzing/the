@@ -98,3 +98,22 @@ async function showBlockedOverlay(tabId) {
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+// Attempt to redirect to the last known good tab, or a default productive site
+
+async function redirectToGoodTab(currentTabId) {
+  if (lastGoodTabId && lastGoodTabId !== currentTabId) {
+    try {
+      await chrome.tabs.update(lastGoodTabId, { active: true });
+      return;
+    } catch (err) {
+      console.log("Could not switch to last good tab:", err);
+    }
+  }
+
+  // If no good tab to switch to, redirect to a default productive site
+
+  await chrome.tabs.update(currentTabId, {
+    url: "https://docs.google.com"
+  });
+}
