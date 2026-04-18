@@ -1,5 +1,6 @@
 let lastGoodTabId = null;
 
+// Basic lists of good and bad sites - can be expanded or made more sophisticated
 const BAD_SITES = [
   "tiktok.com",
   "instagram.com",
@@ -18,16 +19,22 @@ const GOOD_SITES = [
   "khanacademy.org"
 ];
 
+// Listen for tab activation and updates to classify the current tab
+
 chrome.tabs.onActivated.addListener(async ({ tabId }) => {
   const tab = await chrome.tabs.get(tabId);
   await handleTab(tab);
 });
+
+// Also check when a tab is updated (e.g. URL changes)
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete") {
     await handleTab(tab);
   }
 });
+
+// Core logic to classify tabs and redirect if necessary
 
 async function handleTab(tab) {
   if (!tab || !tab.url) return;
@@ -52,6 +59,8 @@ async function handleTab(tab) {
   console.log("Uncertain tab:", tab.url);
 }
 
+// Classify a tab based on its URL and title against the mission criteria
+
 function classifyTab(tab, mission) {
   const url = (tab.url || "").toLowerCase();
   const title = (tab.title || "").toLowerCase();
@@ -70,6 +79,8 @@ function classifyTab(tab, mission) {
 
   return "UNCERTAIN";
 }
+
+// Redirect the user to a good site if they are on a bad one
 
 async function redirectToGoodTab(currentTabId) {
   if (lastGoodTabId && lastGoodTabId !== currentTabId) {

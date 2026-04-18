@@ -25,8 +25,8 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     active: true
   };
 
-  await chrome.storage.local.set({ mission });
-  statusEl.textContent = "Mission saved.";
+  await chrome.storage.local.set({ objectives: [mission] });
+  statusEl.textContent = "Objective saved.";
 });
 
 loadMission();
