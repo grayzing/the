@@ -53,6 +53,8 @@ async function handleTab(tab) {
   if (result === "BAD") {
     console.log("Bad tab detected:", tab.url);
     await redirectToGoodTab(tab.id);
+    await delay(1500); // Wait for the redirect to complete
+    await redirectToGoodTab(tab.id); // Ensure we end up on a good tab
     return;
   }
 
@@ -82,17 +84,17 @@ function classifyTab(tab, mission) {
 
 // Redirect the user to a good site if they are on a bad one
 
-async function redirectToGoodTab(currentTabId) {
-  if (lastGoodTabId && lastGoodTabId !== currentTabId) {
-    try {
-      await chrome.tabs.update(lastGoodTabId, { active: true });
-      return;
-    } catch (err) {
-      console.log("Could not switch to last good tab:", err);
-    }
+async function showBlockedOverlay(tabId) {
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ["content.js"]
+    });
+  } catch (err) {
+    console.error("Failed to inject overlay:", err);
   }
+}
 
-  await chrome.tabs.update(currentTabId, {
-    url: "https://docs.google.com"
-  });
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
