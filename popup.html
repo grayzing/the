@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Stealth Mission</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      width: 280px;
+      padding: 12px;
+      background: #101418;
+      color: white;
+    }
+    input, textarea, button {
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px;
+      box-sizing: border-box;
+      border-radius: 8px;
+      border: none;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+    button {
+      background: #7bd389;
+      color: #101418;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .label {
+      margin-top: 10px;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+    #status {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #7bd389;
+    }
+  </style>
+</head>
+<body>
+  <h2>Mission Setup</h2>
+
+  <div class="label">Objective</div>
+  <input id="objective" placeholder="Study for math exam" />
+
+  <div class="label">Topics (comma-separated)</div>
+  <textarea id="topics" placeholder="calculus, derivatives, limits"></textarea>
+
+  <div class="label">Focus time (minutes)</div>
+  <input id="minutes" type="number" placeholder="45" />
+
+  <button id="saveBtn">Save Mission</button>
+  <div id="status"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

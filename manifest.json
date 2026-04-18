@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Stealth Mission",
+  "version": "1.0.0",
+  "description": "Spy-themed focus extension that redirects distracting tabs.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Stealth Mission"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["tabs", "storage"],
+  "host_permissions": ["<all_urls>"]
+}
