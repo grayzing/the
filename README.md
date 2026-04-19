@@ -36,5 +36,5 @@ If you are not already in the server directory, cd into it.
 
 ```bash
 cd server
-flask --app decider run
+flask --app decider_app run
 ```
