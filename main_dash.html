@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Stealth Focus Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Istok+Web:wght@400;700&family=Micro+5&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Istok+Web:wght@400;700&display=swap" rel="stylesheet">
+
+
+  <style>
+    @font-face {
+      font-family: 'Intel One Mono';
+      src: url('assets/fonts/IntelOneMono-Bold.woff2') format('woff2');
+      font-weight: 700;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      padding: 24px;
+      font-family: 'Istok Web', sans-serif;
+      width: 428px;
+      min-height: 660px;
+      background: url("assets/initial_dashboard.png") no-repeat center center;
+      background-size: cover;
+      color: #cfd8dc;
+    }
+
+    h1 {
+      font-family: 'Intel One Mono', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      line-height: 1.35;
+      margin-bottom: 12px;
+      color: #ffffff;
+    }
+
+    .divider {
+      height: 1px;
+      background: rgba(120, 160, 210, 0.28);
+      margin: 14px 0;
+    }
+
+    .description {
+      font-family: 'Istok Web', sans-serif;
+      font-size: 30px;
+      line-height: 1.7;
+      color: #9DBBB8;
+    }
+
+    .section-title {
+      font-family: 'Intel One Mono', monospace;
+      color: #4CAF50;
+      font-weight: 700;
+      letter-spacing: 2px;
+      font-size: 22px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    .mission-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 26px;
+      color: #b7d1d1;
+      font-size: 16px;
+    }
+
+    .mission-arrow {
+      font-size: 28px;
+      color: #42c85b;
+      line-height: 1;
+    }
+
+    .intel-text {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #b8cbd0;
+    }
+
+    .timer-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 120px;
+      margin-top: 8px;
+    }
+
+    .timer-text {
+      font-family: 'Micro 5', monospace;
+      font-size: 90px;
+      line-height: 1;
+      color: #e8f4f1;
+      letter-spacing: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #b7d1d1;
+      font-size: 16px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .bottom-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 26px;
+    }
+
+    .bottom-label {
+      font-size: 16px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #b7d1d1;
+    }
+
+    .small-arrow {
+      color: #b7d1d1;
+      font-size: 34px;
+      line-height: 1;
+      margin-top: -6px;
+    }
+
+.new-btn {
+  width: 100%;
+  margin-top: 40px;
+  padding: 14px 18px;
+  background: rgba(20, 35, 40, 0.9);
+  border: 1px solid #4CAF50;
+  border-radius: 8px;
+  color: #e6f9ef;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 8px 1px #4CAF50;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover = glow + lift */
+.new-btn:hover {
+  background: rgba(46, 204, 113, 0.15);
+  box-shadow: 0 0 10px rgba(46, 204, 113, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Click effect */
+.new-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 0 6px rgba(46, 204, 113, 0.3);
+}
+
+/* Arrow animation */
+.arrow {
+  transition: transform 0.2s ease;
+}
+
+.new-btn:hover .arrow {
+  transform: translateX(4px);
+}
+  </style>
+</head>
+
+<body>
+  <div class="panel">
+    <h1>WELCOME TO STEALTH<br>FOCUS</h1>
+
+    <div class="divider"></div>
+
+    <div class="section-title">CURRENT MISSION</div>
+
+    <div class="mission-line">
+      <span class="mission-arrow"> <img src="assets/point_arrow.png" alt="Arrow" /> </span>
+      <span id="missionTitle">Learn and Practice Derivatives</span>
+    </div>
+
+    <p class="intel-text" id="missionTopics">
+      Intel: Derivative rules, chain rules, etc.
+    </p>
+
+    <div class="divider"></div>
+
+    <div class="section-title">STEALTH MODE</div>
+
+    <div class="timer-wrap">
+      <div class="timer-text" id="timerDisplay">45:00</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="stats-row">
+      <span>DISTRACTIONS BLOCKED</span>
+      <span id="blockedCount">7</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="bottom-section">
+      <div class="bottom-label">NEW MISSIONS</div>
+      <div>
+        <div class="small-arrow">→</div>
+      </div>
+    </div>
+
+    <button class="new-btn" id="newObjectiveBtn">NEW MISSION</button>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
