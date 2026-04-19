@@ -19,101 +19,60 @@ const GOOD_SITES = [
   "khanacademy.org"
 ];
 
-// Listen for tab activation and updates to classify the current tab
-
-chrome.tabs.onActivated.addListener(async ({ tabId }) => {
-  const tab = await chrome.tabs.get(tabId);
-  await handleTab(tab);
-});
-
-// Also check when a tab is updated (e.g. URL changes)
-
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-  if (changeInfo.status === "complete") {
-    await handleTab(tab);
-  }
-});
-
-// Core logic to classify tabs and redirect if necessary
-
-async function handleTab(tab) {
-  if (!tab || !tab.url) return;
-
-  const { mission } = await chrome.storage.local.get("mission");
-  if (!mission?.active) return;
-
-  const result = classifyTab(tab, mission);
-
-  if (result === "GOOD") {
-    lastGoodTabId = tab.id;
-    console.log("Good tab:", tab.url);
-    return;
-  }
-
-  if (result === "BAD") {
-    console.log("Bad tab detected:", tab.url);
-    await redirectToGoodTab(tab.id);
-    await delay(1500); // Wait for the redirect to complete
-    await redirectToGoodTab(tab.id); // Ensure we end up on a good tab
-    return;
-  }
-
-  console.log("Uncertain tab:", tab.url);
-}
-
-// Classify a tab based on its URL and title against the mission criteria
-
-function classifyTab(tab, mission) {
-  const url = (tab.url || "").toLowerCase();
-  const title = (tab.title || "").toLowerCase();
-
-  if (BAD_SITES.some(site => url.includes(site))) {
-    return "BAD";
-  }
-
-  if (GOOD_SITES.some(site => url.includes(site))) {
-    return "GOOD";
-  }
-
-  if ((mission.topics || []).some(topic => url.includes(topic) || title.includes(topic))) {
-    return "GOOD";
-  }
-
-  return "UNCERTAIN";
-}
-
-// Redirect the user to a good site if they are on a bad one
-
-async function showBlockedOverlay(tabId) {
-  try {
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      files: ["content.js"]
-    });
-  } catch (err) {
-    console.error("Failed to inject overlay:", err);
-  }
-}
-
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// Attempt to redirect to the last known good tab, or a default productive site
-
-async function redirectToGoodTab(currentTabId) {
-  if (lastGoodTabId && lastGoodTabId !== currentTabId) {
+// Function to convert PNG file to UTF-8 base64
+function convertPngToBase64(filePath) {
     try {
-      await chrome.tabs.update(lastGoodTabId, { active: true });
+        const imageBuffer = fs.readFileSync(filePath);
+        const base64String = imageBuffer.toString('base64');
+        return base64String;
+    } catch (error) {
+        console.error('Error converting PNG to base64:', error);
+        return null;
+    }
+}
+
+async function determine_relevance(screenshot_url, objective) {
+  const data = {
+    screenshot: screenshot_url,
+    objective: objective
+  };
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/check_relevance', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    const result = await response.json();
+    console.log('Response:', result["relevance"]);
+    return result["relevance"];
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+// Listener for tab updates
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete' && tab.url) {
+    const isGood = GOOD_SITES.some(site => tab.url.includes(site));
+    if (!isGood) {
+      console.log("bad");
       return;
-    } catch (err) {
-      console.log("Could not switch to last good tab:", err);
+    }
+
+    try {
+      const screenshot = await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
+      // Extract base64 string from data URL (remove "data:image/png;base64," prefix)
+      console.log("Determining relevance...")
+      const base64String = screenshot.split(',')[1];
+      await determine_relevance(base64String, 'calculus');
+      
+    } catch (error) {
+      console.error('Failed to capture screenshot:', error);
     }
   }
+});
 
-  // If no good tab to switch to, redirect to a default productive site
 
-  await chrome.tabs.update(currentTabId, {
-    url: "https://docs.google.com"
-  });
-}
