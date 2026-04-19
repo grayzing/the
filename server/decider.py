@@ -9,7 +9,9 @@ from langchain.messages import HumanMessage
 from langchain_ollama import ChatOllama
 from langchain_core.output_parsers import StrOutputParser
 
-llm = ChatOllama(model="gemma4:e4b", temperature=0)
+import image_part
+
+llm = ChatOllama(model="gemma4:e2b", temperature=0)
 
 def prompt_func(data):
     text = data["text"]
@@ -29,9 +31,9 @@ def prompt_func(data):
 
     return [HumanMessage(content=content_parts)]
 
-def webpage_classify(image_b64: str, objective: str) -> str:
+def webpage_classify(img_path: str, objective: str) -> str:
     """
-    Determine if the screenshot (base64) is related to the objective
+    Determine if the screenshot of the webpage located at img_path is related to the objective
     """
     supporting_prompt = f"""
          You are a teacher deeply invested in this user's education.
@@ -40,8 +42,8 @@ def webpage_classify(image_b64: str, objective: str) -> str:
          Is this webpage relevant to {objective}? If it is relevant, reply true. 
          If the webpage is MAYBE related to the objective, reply mismatch
          If it is not at all related to the objective, reply false.
-         Do not provide reasoning or chain-of-thought; answer only with true, mismatch, or false.
          """
+    image_b64 = image_part.img_to_base64(img_path)
     chain = prompt_func | llm | StrOutputParser()
 
     query_chain = chain.invoke(

@@ -6,7 +6,17 @@ const BAD_SITES = [
   "instagram.com",
   "netflix.com",
   "x.com",
-  "twitter.com"
+  "twitter.com",
+  "facebook.com",
+  "reddit.com",
+  "pinterest.com",
+  "twitch.tv",
+  "hulu.com",
+  "disneyplus.com",
+  "buzzfeed.com",
+  "9gag.com",
+  "tumblr.com",
+  "spotify.com"
 ];
 
 const GOOD_SITES = [
@@ -16,7 +26,15 @@ const GOOD_SITES = [
   "leetcode.com",
   "wikipedia.org",
   "coursera.org",
-  "khanacademy.org"
+  "khanacademy.org",
+  "stackoverflow.com",
+  "github.com",
+  "edx.org",
+  "udemy.com",
+  "medium.com",
+  "scholar.google.com",
+  "arxiv.org",
+  "w3schools.com"
 ];
 
 // Function to convert PNG file to UTF-8 base64
@@ -56,8 +74,18 @@ async function determine_relevance(screenshot_url, objective) {
 // Listener for tab updates
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && tab.url) {
+    
+
     const data = await chrome.storage.local.get("mission");
     if (!data.mission) return;
+    const isBad = BAD_SITES.some(site => tab.url.includes(site));
+    if (isBad) {
+      const mission = data.mission;
+      const distractions_blocked_o = mission.distractions_blocked + 1;
+      chrome.storage.local.set({ mission: { ...mission, distractions_blocked: distractions_blocked_o } });
+      chrome.tabs.sendMessage(tabId, { action: "populate_block" });
+      return;
+    }
     try {
       const objective = data.mission.objective;
       const screenshot = await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
