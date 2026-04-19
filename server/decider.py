@@ -31,19 +31,25 @@ def prompt_func(data):
 
     return [HumanMessage(content=content_parts)]
 
-def webpage_classify(img_path: str, objective: str) -> bool:
+def webpage_classify(img_path: str, objective: str) -> str:
     """
     Determine if the screenshot of the webpage located at img_path is related to the objective
     """
+    supporting_prompt = f"""
+         You are a teacher deeply invested in this user's education.
+         As such, you would like them to be on task to their objective.
+         Your task is to determine whether the provided screenshot is relevant to their objective.
+         Is this webpage relevant to {objective}? If it is relevant, reply true. 
+         If the webpage is MAYBE related to the objective, reply mismatch
+         If it is not at all related to the objective, reply false.
+         """
     image_b64 = image_part.img_to_base64(img_path)
     chain = prompt_func | llm | StrOutputParser()
 
     query_chain = chain.invoke(
-        {"text": f"""
-         You are a teacher deeply invested in this user's education.
-         As such, you would like them to be on task to their objective.
-         Your task is to determine whether the provided screenshot is relevant to their objective.
-         Is this webpage relevant to {objective}? If it is relevant, reply true. If it is not, reply false.
-         """, "image": image_b64}
+        {"text": supporting_prompt, "image": image_b64}
     )
-    return query_chain.lower().strip() == "true"
+    result = query_chain.lower().strip()
+    while not result in ["true", "mismatch", "false"]: # Handle cases where the LLM outputs the wrong answer
+        result = query_chain.lower().strip()
+    return result
