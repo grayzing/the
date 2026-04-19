@@ -4,73 +4,111 @@
   <meta charset="UTF-8" />
   <title>Stealth Focus</title>
 
-  <style>
-    body {
-      margin: 0;
-      padding: 16px;
-      width: 320px;
-      font-family: "Istok Web", sans-serif;
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Istok+Web:wght@400;700&display=swap" rel="stylesheet">
 
-      /* ✅ Background image */
+  <style>
+    @font-face {
+      font-family: 'Intel One Mono';
+      src: url('assets/fonts/IntelOneMono-Bold.woff2') format('woff2');
+      font-weight: 700;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      padding: 24px;
+      font-family: 'Istok Web', sans-serif;
+      width: 428px;
+      min-height: 745px;
       background: url("assets/initial_dashboard.png") no-repeat center center;
       background-size: cover;
-
       color: #cfd8dc;
     }
 
     h1 {
-      font-size: 16px;
-      letter-spacing: 2px;
-      margin-bottom: 6px;
+      font-family: 'Intel One Mono', monospace;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      margin-bottom: 12px;
+      color: #ffffff;
     }
 
     .divider {
       height: 1px;
-      background: rgba(255,255,255,0.15);
-      margin: 12px 0;
+      background: rgba(255, 255, 255, 0.15);
+      margin: 14px 0;
+    }
+
+    .description {
+      font-family: 'Istok Web', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #cfd8dc;
     }
 
     .section-title {
-      color: #4CAF54;
-      font-weight: bold;
-      letter-spacing: 1px;
-      margin-bottom: 10px;
-      font-size: 22px ;
+      font-family: 'Intel One Mono', monospace;
+      color: #4CAF50;
+      font-weight: 700;
+      letter-spacing: 2px;
+      font-size: 22px;
+      margin-bottom: 14px;
     }
 
     label {
-      font-size: 12px;
-      margin-top: 10px;
+      font-family: 'Istok Web', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      margin-top: 16px;
+      margin-bottom: 6px;
       display: block;
+      color: #cfd8dc;
     }
 
     input {
       width: 100%;
-      padding: 10px;
-      margin-top: 6px;
+      padding: 14px 12px;
       border-radius: 6px;
       border: none;
       background: #CAD9E7;
-      color: #7E8482;
+      color: #4a5568;
+      font-family: 'Istok Web', sans-serif;
+      font-size: 14px;
+      outline: none;
     }
 
-    /* ✅ IMAGE BUTTON STYLING */
+    input::placeholder {
+      color: #8a9bb0;
+    }
+
     .start-btn {
       width: 100%;
-      margin-top: 18px;
+      margin-top: 22px;
       cursor: pointer;
       transition: transform 0.15s ease, opacity 0.15s ease;
+      display: block;
     }
 
     .start-btn:hover {
-      transform: scale(1.03);
+      transform: scale(1.02);
       opacity: 0.9;
     }
 
-    .description {
-      font-size: 12px;
-      line-height: 1.5;
-      color: #7E8482;
+    #status {
+      font-family: 'Istok Web', sans-serif;
+      font-size: 13px;
+      color: #4CAF50;
+      text-align: center;
+      margin-top: 10px;
+      min-height: 18px;
     }
   </style>
 </head>
@@ -79,9 +117,11 @@
   <h1>WELCOME TO STEALTH FOCUS</h1>
   <div class="divider"></div>
 
-  <div class="description">
-    Welcome to Stealth Focus, Agent! This is an extension browser that helps you maximize your productivity. Below, fill your objective title then your topics and the time you want to focus for. 
-  </div>
+  <p class="description">
+    Welcome to Stealth Focus, Agent! This is an extension browser that helps you maximize
+    your productivity. Below, fill your objective title then your topics and the time you
+    want to focus for.
+  </p>
 
   <div class="divider"></div>
 
@@ -91,18 +131,19 @@
   <input id="objective" placeholder="Learn and Practice Derivatives" />
 
   <label>TOPICS</label>
-  <input id="topics" placeholder="Derivatives, Chain Rule..." />
+  <input id="topics" placeholder="Derivatives, Chain rules, etc." />
 
   <label>FOCUS TIME</label>
   <input id="minutes" type="number" placeholder="45" />
 
-  <!-- ✅ IMAGE BUTTON -->
-  <img 
-    src="assets/button.png" 
-    id="startBtn" 
-    class="start-btn" 
+  <img
+    src="assets/button.png"
+    id="saveBtn"
+    class="start-btn"
     alt="Start Mission"
   />
+
+  <div id="status"></div>
 
   <script src="popup.js"></script>
 </body>
