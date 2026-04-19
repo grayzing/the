@@ -25,7 +25,7 @@
       padding: 24px;
       font-family: 'Istok Web', sans-serif;
       width: 428px;
-      min-height: 745px;
+      min-height: 660px;
       background: url("assets/initial_dashboard.png") no-repeat center center;
       background-size: cover;
       color: #cfd8dc;
@@ -78,38 +78,61 @@
       padding: 14px 12px;
       border-radius: 6px;
       border: none;
-      background: #CAD9E7;
-      color: #4a5568;
+      background: #252C38;
+      color: #9298A1;
       font-family: 'Istok Web', sans-serif;
       font-size: 14px;
       outline: none;
+      border: 1px solid #20a024;
+      transition: all 0.2s ease-in-out;
     }
 
     input::placeholder {
-      color: #8a9bb0;
+      color: #B3B9C3;
     }
 
     .start-btn {
-      width: 100%;
-      margin-top: 22px;
-      cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-      display: block;
-    }
+  width: 100%;
+  margin-top: 40px;
+  padding: 14px 18px;
+  background: rgba(20, 35, 40, 0.9);
+  border: 1px solid #4CAF50;
+  border-radius: 8px;
+  color: #e6f9ef;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 8px 1px #4CAF50;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
 
-    .start-btn:hover {
-      transform: scale(1.02);
-      opacity: 0.9;
-    }
+/* Hover = glow + lift */
+.start-btn:hover {
+  background: rgba(46, 204, 113, 0.15);
+  box-shadow: 0 0 10px rgba(46, 204, 113, 0.4);
+  transform: translateY(-1px);
+}
 
-    #status {
-      font-family: 'Istok Web', sans-serif;
-      font-size: 13px;
-      color: #4CAF50;
-      text-align: center;
-      margin-top: 10px;
-      min-height: 18px;
-    }
+/* Click effect */
+.start-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 0 6px rgba(46, 204, 113, 0.3);
+}
+
+/* Arrow animation */
+.arrow {
+  transition: transform 0.2s ease;
+}
+
+.start-btn:hover .arrow {
+  transform: translateX(4px);
+}
+
   </style>
 </head>
 
@@ -136,12 +159,9 @@
   <label>FOCUS TIME</label>
   <input id="minutes" type="number" placeholder="45" />
 
-  <img
-    src="assets/button.png"
-    id="saveBtn"
-    class="start-btn"
-    alt="Start Mission"
-  />
+  <button class="start-btn">
+  START MISSION <span class="arrow">→</span>
+  </button>
 
   <div id="status"></div>
 
