@@ -20,17 +20,16 @@ async function loadMission() {
   const data = await chrome.storage.local.get("mission");
   const mission = data.mission;
 
-  if (!mission) {
-    objectiveEl.value = "";
-    topicsEl.value = "";
-    minutesEl.value = "";
-    updateSaveButton();
+  if (mission) {
+    // Redirect to dashboard if mission is active
+    window.location.href = "main_dash.html";
     return;
   }
 
-  objectiveEl.value = mission.objective || "";
-  topicsEl.value = (mission.topics || []).join(", ");
-  minutesEl.value = mission.minutes || "";
+  // Clear fields if no mission
+  objectiveEl.value = "";
+  topicsEl.value = "";
+  minutesEl.value = "";
   updateSaveButton();
 }
 
