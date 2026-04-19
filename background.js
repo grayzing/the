@@ -80,6 +80,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (!data.mission) return;
     const isBad = BAD_SITES.some(site => tab.url.includes(site));
     if (isBad) {
+      console.log()
       const mission = data.mission;
       const distractions_blocked_o = mission.distractions_blocked + 1;
       chrome.storage.local.set({ mission: { ...mission, distractions_blocked: distractions_blocked_o } });

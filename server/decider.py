@@ -1,17 +1,21 @@
 """
 Written by Gray
 
-This module uses agentic AI (Gemma 4 + LangChain) to decide if a given page is on-task.
+This module uses agentic AI (Gemini + LangChain) to decide if a given page is on-task.
 Specifically, it requires a screenshot, page URL, and the given objectives, and integrates with
 tooling to determine whether to boot the user to a previous, more relevant page.
 """
-from langchain.messages import HumanMessage
-from langchain_ollama import ChatOllama
+from langchain.schema import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import StrOutputParser
 
 import image_part
 
-llm = ChatOllama(model="gemma4:e2b", temperature=0)
+llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash",
+    temperature=0,
+    api_key="AIzaSyDmnnZqMCq2Ax80-Yvl5htxZ2p_OpTQ3Fo"
+)
 
 def prompt_func(data):
     text = data["text"]
@@ -42,6 +46,7 @@ def webpage_classify(img_path: str, objective: str) -> str:
          Is this webpage relevant to {objective}? If it is relevant, reply true. 
          If the webpage is MAYBE related to the objective, reply mismatch
          If it is not at all related to the objective, reply false.
+         Do not provide reasoning or chain-of-thought; answer only with true, mismatch, or false.
          """
     image_b64 = image_part.img_to_base64(img_path)
     chain = prompt_func | llm | StrOutputParser()
