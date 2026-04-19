@@ -14,29 +14,21 @@ async function loadMission() {
   minutesEl.value = mission.minutes || "";
 }
 
+// Save the mission when the button is clicked and start session
 document.getElementById("saveBtn").addEventListener("click", async () => {
-  const minutes = Number(minutesEl.value || 0);
   const mission = {
     objective: objectiveEl.value.trim(),
     topics: topicsEl.value
       .split(",")
       .map(t => t.trim().toLowerCase())
       .filter(Boolean),
-    minutes,
+    minutes: Number(minutesEl.value || 0),
     active: true
   };
 
-  const session = {
-    elapsedMs: 0,
-    isOnGoodTab: false,
-    lastTickAt: Date.now(),
-    targetMs: Math.max(minutes, 0) * 60 * 1000,
-    completed: false
-  };
-
-  await chrome.storage.local.set({ mission, session });
-  await chrome.runtime.sendMessage({ type: "MISSION_STARTED" });
-  statusEl.textContent = "Mission started.";
+  await chrome.storage.local.set({ objectives: [mission] });
+  statusEl.textContent = "Objective saved.";
+  statusEl.Boolean = true; // Send status to content script to start session
 });
 
 loadMission();

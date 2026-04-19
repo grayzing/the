@@ -47,3 +47,33 @@ def webpage_classify(img_path: str, objective: str) -> bool:
          """, "image": image_b64}
     )
     return query_chain.lower().strip() == "true"
+
+
+def text_classify(url: str, title: str, objective: str, topics: list[str] | None = None) -> str:
+    """
+    Classify a page using text metadata only.
+    Returns GOOD, BAD, or UNCERTAIN.
+    """
+    topics = topics or []
+    topics_text = ", ".join(topics) if topics else "None provided"
+
+    query = (
+        "You are classifying whether a browser tab is relevant to a user's mission. "
+        "Return exactly one of these labels: GOOD, BAD, or UNCERTAIN.\n\n"
+        f"Objective: {objective or 'None provided'}\n"
+        f"Topics: {topics_text}\n"
+        f"Page title: {title or 'None provided'}\n"
+        f"Page URL: {url or 'None provided'}\n\n"
+        "Choose GOOD when the page is clearly useful for the mission. "
+        "Choose BAD when it is clearly distracting or unrelated. "
+        "Choose UNCERTAIN when the metadata is not enough."
+    )
+
+    result = llm.invoke(query)
+    classification = (getattr(result, "content", "") or "").strip().upper()
+
+    if "GOOD" in classification:
+        return "GOOD"
+    if "BAD" in classification:
+        return "BAD"
+    return "UNCERTAIN"

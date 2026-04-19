@@ -1,4 +1,6 @@
 let lastGoodTabId = null;
+const SESSION_ALARM = "session-stopwatch";
+const SESSION_COMPLETE_FILE = "sessionComplete.js";
 
 // Basic lists of good and bad sites - can be expanded or made more sophisticated
 const BAD_SITES = [
@@ -34,6 +36,32 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 });
 
+chrome.runtime.onStartup.addListener(async () => {
+  await restoreSessionAlarm();
+});
+
+chrome.runtime.onInstalled.addListener(async () => {
+  await restoreSessionAlarm();
+});
+
+chrome.alarms.onAlarm.addListener(async alarm => {
+  if (alarm.name !== SESSION_ALARM) return;
+  await syncSessionTimer();
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message?.type !== "MISSION_STARTED") return;
+
+  initializeSession()
+    .then(() => sendResponse({ ok: true }))
+    .catch(err => {
+      console.error("Failed to initialize mission session:", err);
+      sendResponse({ ok: false });
+    });
+
+  return true;
+});
+
 // Core logic to classify tabs and redirect if necessary
 
 async function handleTab(tab) {
@@ -42,7 +70,8 @@ async function handleTab(tab) {
   const { mission } = await chrome.storage.local.get("mission");
   if (!mission?.active) return;
 
-  const result = classifyTab(tab, mission);
+  const result = await classifyTab(tab, mission);
+  await syncSessionTimer(result);
 
   if (result === "GOOD") {
     lastGoodTabId = tab.id;
@@ -63,7 +92,7 @@ async function handleTab(tab) {
 
 // Classify a tab based on its URL and title against the mission criteria
 
-function classifyTab(tab, mission) {
+async function classifyTab(tab, mission) {
   const url = (tab.url || "").toLowerCase();
   const title = (tab.title || "").toLowerCase();
 
@@ -79,7 +108,28 @@ function classifyTab(tab, mission) {
     return "GOOD";
   }
 
-  return "UNCERTAIN";
+  try {
+    const response = await fetch("http://127.0.0.1:5000/classify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url: tab.url || "",
+        title: tab.title || "",
+        objective: mission.objective || "",
+        topics: mission.topics || []
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Flask classifier returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.classification || "UNCERTAIN";
+  } catch (err) {
+    console.error("Flask classification failed:", err);
+    return "UNCERTAIN";
+  }
 }
 
 // Redirect the user to a good site if they are on a bad one
@@ -116,4 +166,83 @@ async function redirectToGoodTab(currentTabId) {
   await chrome.tabs.update(currentTabId, {
     url: "https://docs.google.com"
   });
+}
+
+async function initializeSession() {
+  await chrome.alarms.clear(SESSION_ALARM);
+  chrome.alarms.create(SESSION_ALARM, { periodInMinutes: 1 });
+  await syncSessionTimer(null, true);
+}
+
+async function syncSessionTimer(classification = null, resetClock = false) {
+  const { mission, session } = await chrome.storage.local.get(["mission", "session"]);
+  if (!mission?.active || !session || session.completed) {
+    await chrome.alarms.clear(SESSION_ALARM);
+    return;
+  }
+
+  const now = Date.now();
+  let elapsedMs = Number(session.elapsedMs || 0);
+  const lastTickAt = Number(session.lastTickAt || now);
+  const wasOnGoodTab = Boolean(session.isOnGoodTab);
+
+  if (!resetClock && wasOnGoodTab) {
+    elapsedMs += Math.max(0, now - lastTickAt);
+  }
+
+  const currentClassification = classification ?? await classifyActiveTab(mission);
+  const nextSession = {
+    ...session,
+    elapsedMs,
+    isOnGoodTab: currentClassification === "GOOD",
+    lastTickAt: now
+  };
+
+  const targetMs = Number(session.targetMs || mission.minutes * 60 * 1000 || 0);
+  if (targetMs > 0 && elapsedMs >= targetMs) {
+    nextSession.elapsedMs = targetMs;
+    nextSession.isOnGoodTab = false;
+    nextSession.completed = true;
+    await chrome.storage.local.set({
+      mission: { ...mission, active: false },
+      session: nextSession
+    });
+    await chrome.alarms.clear(SESSION_ALARM);
+    await showSessionCompletePopup();
+    return;
+  }
+
+  await chrome.storage.local.set({ session: nextSession });
+}
+
+async function classifyActiveTab(mission) {
+  const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  const [tab] = tabs;
+  if (!tab?.url) return "UNCERTAIN";
+  return classifyTab(tab, mission);
+}
+
+async function showSessionCompletePopup() {
+  try {
+    const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    const [tab] = tabs;
+    if (!tab?.id) return;
+
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: [SESSION_COMPLETE_FILE]
+    });
+  } catch (err) {
+    console.error(`Failed to inject ${SESSION_COMPLETE_FILE}:`, err);
+  }
+}
+
+async function restoreSessionAlarm() {
+  const { mission, session } = await chrome.storage.local.get(["mission", "session"]);
+  if (!mission?.active || !session || session.completed) {
+    await chrome.alarms.clear(SESSION_ALARM);
+    return;
+  }
+
+  chrome.alarms.create(SESSION_ALARM, { periodInMinutes: 1 });
 }

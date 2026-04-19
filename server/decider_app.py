@@ -1,10 +1,12 @@
 import decider
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import base64
 import tempfile
 import os
 
 app = Flask(__name__)
+CORS(app)
 
 """
 /check_relevance takes a JSON
@@ -43,6 +45,18 @@ def check_relevance():
     finally:
         # Clean up temp file
         os.unlink(temp_path)
+
+
+@app.route('/classify', methods=['POST'])
+def classify():
+    data = request.get_json(silent=True) or {}
+    classification = decider.text_classify(
+        url=data.get('url', ''),
+        title=data.get('title', ''),
+        objective=data.get('objective', ''),
+        topics=data.get('topics', []),
+    )
+    return jsonify({'classification': classification})
 
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5000)
