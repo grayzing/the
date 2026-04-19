@@ -11,7 +11,7 @@ from langchain_core.output_parsers import StrOutputParser
 
 import image_part
 
-llm = ChatOllama(model="gemma4:e4b", temperature=0, top_p=1)
+llm = ChatOllama(model="gemma4:e4b", temperature=0)
 
 def prompt_func(data):
     text = data["text"]
@@ -39,10 +39,9 @@ def webpage_classify(img_path: str, objective: str) -> str:
          You are a teacher deeply invested in this user's education.
          As such, you would like them to be on task to their objective.
          Your task is to determine whether the provided screenshot is relevant to their objective.
-         Is this webpage relevant to {objective}? If it is relevant, reply true.
-         If the webpage is MAYBE related to the objective, reply mismatch.
+         Is this webpage relevant to {objective}? If it is relevant, reply true. 
+         If the webpage is MAYBE related to the objective, reply mismatch
          If it is not at all related to the objective, reply false.
-         Do not provide reasoning or chain-of-thought; answer only with true, mismatch, or false.
          """
     image_b64 = image_part.img_to_base64(img_path)
     chain = prompt_func | llm | StrOutputParser()
