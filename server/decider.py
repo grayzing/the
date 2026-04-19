@@ -39,6 +39,11 @@ def webpage_classify(img_path: str, objective: str) -> bool:
     chain = prompt_func | llm | StrOutputParser()
 
     query_chain = chain.invoke(
-        {"text": f"Is this webpage relevant to {objective}? Reply with true or false.", "image": image_b64}
+        {"text": f"""
+         You are a teacher deeply invested in this user's education.
+         As such, you would like them to be on task to their objective.
+         Your task is to determine whether the provided screenshot is relevant to their objective.
+         Is this webpage relevant to {objective}? If it is relevant, reply true. If it is not, reply false.
+         """, "image": image_b64}
     )
-    return bool(query_chain)
+    return query_chain.lower().strip() == "true"
