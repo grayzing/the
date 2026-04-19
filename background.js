@@ -1,5 +1,3 @@
-
-
 let lastGoodTabId = null;
 
 // Basic lists of good and bad sites - can be expanded or made more sophisticated
