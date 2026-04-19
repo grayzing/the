@@ -130,38 +130,62 @@ async function classifyTab(tab, mission) {
     console.error("Flask classification failed:", err);
     return "UNCERTAIN";
   }
+// Function to convert PNG file to UTF-8 base64
+function convertPngToBase64(filePath) {
+    try {
+        const imageBuffer = fs.readFileSync(filePath);
+        const base64String = imageBuffer.toString('base64');
+        return base64String;
+    } catch (error) {
+        console.error('Error converting PNG to base64:', error);
+        return null;
+    }
 }
 
-// Redirect the user to a good site if they are on a bad one
+async function determine_relevance(screenshot_url, objective) {
+  const data = {
+    screenshot: screenshot_url,
+    objective: objective
+  };
 
-async function showBlockedOverlay(tabId) {
   try {
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      files: ["content.js"]
+    const response = await fetch('http://127.0.0.1:5000/check_relevance', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
     });
-  } catch (err) {
-    console.error("Failed to inject overlay:", err);
+    const result = await response.json();
+    console.log('Response:', result["relevance"]);
+    return result["relevance"];
+  } catch (error) {
+    console.error('Error:', error);
   }
 }
 
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// Attempt to redirect to the last known good tab, or a default productive site
-
-async function redirectToGoodTab(currentTabId) {
-  if (lastGoodTabId && lastGoodTabId !== currentTabId) {
-    try {
-      await chrome.tabs.update(lastGoodTabId, { active: true });
+// Listener for tab updates
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete' && tab.url) {
+    const isGood = GOOD_SITES.some(site => tab.url.includes(site));
+    if (!isGood) {
+      console.log("bad");
       return;
-    } catch (err) {
-      console.log("Could not switch to last good tab:", err);
+    }
+
+    try {
+      const screenshot = await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
+      // Extract base64 string from data URL (remove "data:image/png;base64," prefix)
+      console.log("Determining relevance...")
+      const base64String = screenshot.split(',')[1];
+      await determine_relevance(base64String, 'calculus');
+      
+    } catch (error) {
+      console.error('Failed to capture screenshot:', error);
     }
   }
+});
 
-  // If no good tab to switch to, redirect to a default productive site
 
   await chrome.tabs.update(currentTabId, {
     url: "https://docs.google.com"
