@@ -111,6 +111,18 @@
   transition: all 0.2s ease-in-out;
 }
 
+.start-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      box-shadow: none;
+    }
+
+    .start-btn:disabled:hover {
+      transform: none;
+      background: rgba(20, 35, 40, 0.9);
+      box-shadow: none;
+    }
+
 /* Hover = glow + lift */
 .start-btn:hover {
   background: rgba(46, 204, 113, 0.15);
@@ -159,7 +171,7 @@
   <label>FOCUS TIME (IN MINUTES)</label>
   <input id="minutes" type="number" placeholder="45" />
 
-  <button class="start-btn">
+  <button id="saveBtn" class="start-btn" disabled>
   START MISSION <span class="arrow">→</span>
   </button>
 

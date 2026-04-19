@@ -1,4 +1,4 @@
-(() => {
+function populate_block() {
   // Avoid adding duplicate overlays
   if (document.getElementById("stealth-mission-overlay")) return;
 
@@ -9,7 +9,6 @@
     <div id="stealth-mission-card">
       <div id="stealth-mission-title">MISSION COMPROMISED</div>
       <div id="stealth-mission-subtitle">This tab is not part of your current objective.</div>
-      <div id="stealth-mission-body">Redirecting you back to a productive tab...</div>
     </div>
   `;
 
@@ -61,4 +60,10 @@
 
   document.documentElement.appendChild(style);
   document.documentElement.appendChild(overlay);
-})();
+}
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "populate_block") {
+    populate_block();
+  }
+});
