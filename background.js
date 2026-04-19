@@ -56,12 +56,6 @@ async function determine_relevance(screenshot_url, objective) {
 // Listener for tab updates
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && tab.url) {
-    const isGood = GOOD_SITES.some(site => tab.url.includes(site));
-    if (!isGood) {
-      console.log("bad");
-      return;
-    }
-
     try {
       const screenshot = await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
       // Extract base64 string from data URL (remove "data:image/png;base64," prefix)
