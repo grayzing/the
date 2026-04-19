@@ -30,3 +30,11 @@ Then install the requirements for the server,
 cd server
 pip install -r requirements.txt
 ```
+
+### Running the server
+If you are not already in the server directory, cd into it.
+
+```bash
+cd server
+flask --app decider run
+```
