@@ -40,8 +40,8 @@ def check_relevance():
     
     try:
         # Call decider function
-        is_relevant = decider.webpage_classify(temp_path, objective)
-        return jsonify({'relevant': is_relevant})
+        relevance = decider.webpage_classify(temp_path, objective)
+        return jsonify({'relevance': relevance})
     finally:
         # Clean up temp file
         os.unlink(temp_path)
